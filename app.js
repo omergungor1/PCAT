@@ -1,7 +1,29 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const fileUpload = require('express-fileupload');
+const methodOverride = require('method-override');
 const ejs = require('ejs');
+const { getAllPhotos, getPhoto, createPhoto, updatePhoto, deletePhoto } = require('./controllers/photoControllers');
+const { getAboutPage, getAddPage, getEditPage } = require('./controllers/pageController');
 
 const app = express();
+
+// DATABASE CONNECTION
+// mongoose.connect('mongodb://localhost:27017/pcat-test-db', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://omergungorco:3KP908HpM5t8hpGe@cluster0.yrs0arx.mongodb.net/?retryWrites=true&w=majority', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+// Veritabanı bağlantısı başarılı olduğunda tetiklenen olay
+mongoose.connection.on('connected', () => {
+    console.log('Mongoose bağlantısı başarılı!');
+});
+
+// Veritabanı bağlantısı hatası olduğunda tetiklenen olay
+mongoose.connection.on('error', (err) => {
+    console.log('Mongoose bağlantı hatası: ' + err);
+});
 
 // TEMPLATE ENGINE
 app.set('view engine', 'ejs');
@@ -22,87 +44,26 @@ app.use(express.static('public'));
 app.use(loginCheck);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(fileUpload());
+app.use(methodOverride('_method', { methods: ['POST', 'GET'] }));
 
 
-const port = 3000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
 // ROUTES
-app.get('/', (req, res) => {
-    let photo = [
-        {
-            _id: 'tn-01.jpg',
-            image: __dirname + '/public/img/tn-01.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-        {
-            _id: 'tn-02.jpg',
-            image: __dirname + '/public/img/tn-02.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-        {
-            _id: 'tn-03.jpg',
-            image: __dirname + '/public/img/tn-03.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-        {
-            _id: 'tn-04.jpg',
-            image: __dirname + '/public/img/tn-04.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-        {
-            _id: 'tn-05.jpg',
-            image: __dirname + '/public/img/tn-05.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-        {
-            _id: 'tn-06.jpg',
-            image: __dirname + '/public/img/tn-06.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-        {
-            _id: 'tn-07.jpg',
-            image: __dirname + '/public/img/tn-07.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-        {
-            _id: 'tn-08.jpg',
-            image: __dirname + '/public/img/tn-08.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-        {
-            _id: 'tn-09.jpg',
-            image: __dirname + '/public/img/tn-09.jpg',
-            title: 'Hello',
-            description: 'Lorem ipsum'
-        },
-    ];
-    console.log(photo[0].image);
-    // res.send(photo);
-    res.render('index', { photos: photo });
-});
+app.get('/', getAllPhotos);
+app.get('/photos/:id', getPhoto);
+app.post('/photos', createPhoto);
+app.put('/photos/:id', updatePhoto);
+app.delete('/photos/:id', deletePhoto);
 
-app.get('/add', (req, res) => {
-    // res.send('Add Photo Page');
-    res.render('add');
-});
+app.get('/add', getAddPage);
+app.get('/about', getAboutPage);
+app.get('/photos/edit/:id', getEditPage);
 
-app.get('/about', (req, res) => {
-    // res.send('About Us Page');
-    res.render('about');
-});
 
-app.post('/photos', (req, res) => {
-    console.log('Posted Data: ', req.body);
-    res.redirect('/');
-});
+
+
