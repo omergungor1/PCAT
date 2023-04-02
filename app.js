@@ -48,7 +48,7 @@ app.use(fileUpload());
 app.use(methodOverride('_method', { methods: ['POST', 'GET'] }));
 
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 10000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
