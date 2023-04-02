@@ -26,6 +26,7 @@ mongoose.connection.on('error', (err) => {
 });
 
 // TEMPLATE ENGINE
+app.set('views', './views');
 app.set('view engine', 'ejs');
 
 const loginCheck = (req, res, next) => {
